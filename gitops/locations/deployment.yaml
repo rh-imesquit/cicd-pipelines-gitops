@@ -18,7 +18,7 @@ spec:
         - name: quay-auth-secret
       containers:
         - name: quarkus-app
-          image: quay-quay-image-registry.apps.cluster-vg29h.vg29h.sandbox1619.opentlc.com/imesquit/locations:99de5d081404e864a0195a38dc41f86588ae48b6
+          image: quay-quay-image-registry.apps.cluster-vg29h.vg29h.sandbox1619.opentlc.com/imesquit/locations:0c3f853c225c555d4397fb188c984111a3fc4668
           ports:
             - containerPort: 8080
           resources:
