@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: quarkus-app
-          image: quay-enterprise-quay-quay-enterprise.apps.cluster-vg29h.vg29h.sandbox1619.opentlc.com/imesquit/locations:latest
+          image: quay-quay-image-registry.apps.cluster-vg29h.vg29h.sandbox1619.opentlc.com/imesquit/locations:e3adb2a8bbccf97fc4c422187e304405225eceef
           ports:
             - containerPort: 8080
           resources:
