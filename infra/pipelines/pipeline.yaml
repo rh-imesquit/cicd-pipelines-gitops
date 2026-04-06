@@ -150,7 +150,7 @@ spec:
             # 4. Push forçando a URL autenticada (mata o erro de 'No such device')
             git add .
             if ! git diff --cached --quiet; then
-              git commit -m "[Pipeline CI/CD] Changing image property to ${REPO_URL}"
+              git commit -m "[Pipeline CI/CD] Changing image property to $(params.image-name)"
               git push "https://${USER}:${TOKEN}@${REPO_URL}" main
             else
               echo "Nenhuma mudança para commitar."
