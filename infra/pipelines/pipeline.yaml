@@ -22,7 +22,7 @@ spec:
     - name: shared-data
       description: "Armazenamento para o código e artefatos Maven"
     - name: git-auth
-      description: "Workspace que receberá a Secret github-creds"
+      description: "Workspace que receberá a Secret github-credential"
     - name: docker-config
       description: "Workspace que receberá a Secret quay-auth-secret"
   tasks:

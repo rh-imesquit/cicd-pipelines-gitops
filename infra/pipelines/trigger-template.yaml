@@ -35,7 +35,7 @@ spec:
                   requests: { storage: 1Gi }
           - name: git-auth
             secret:
-              secretName: github-creds
+              secretName: github-credential
           - name: docker-config
             secret:
               secretName: quay-auth-secret
