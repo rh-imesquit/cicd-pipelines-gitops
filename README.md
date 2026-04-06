@@ -30,5 +30,19 @@ oc secrets link pipeline quay-auth-secret --for=pull,mount -n app-pipeline-dev
 oc secrets link pipeline-bot quay-auth-secret --for=pull,mount -n app-pipeline-dev
 
 
+
+# 1. Dá permissão de admin para o ArgoCD gerenciar o namespace da aplicação
+oc adm policy add-role-to-user admin system:serviceaccount:openshift-gitops:openshift-gitops-argocd-application-controller -n location-app
+
+# 2. (Opcional, mas recomendado) Garante que o namespace está marcado como gerenciado
+oc label namespace location-app argocd.argoproj.io/managed-by=openshift-gitops --overwrite
+
+
+oc get secret quay-auth-secret -n location-pipeline -o yaml | \
+sed 's/namespace: location-pipeline/namespace: location-app/' | \
+oc apply -f -
+
+oc secrets link default quay-auth-secret --for=pull -n location-app
+
 erro resolvers
 https://access.redhat.com/solutions/7054083

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: locations-app
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/rh-imesquit/cicd-pipelines-gitops.git'
+    targetRevision: HEAD
+    path: gitops/locations
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: location-app
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -14,6 +14,8 @@ spec:
       labels:
         app: app-locations
     spec:
+      imagePullSecrets:
+        - name: quay-auth-secret
       containers:
         - name: quarkus-app
           image: quay-quay-image-registry.apps.cluster-vg29h.vg29h.sandbox1619.opentlc.com/imesquit/locations:99de5d081404e864a0195a38dc41f86588ae48b6
