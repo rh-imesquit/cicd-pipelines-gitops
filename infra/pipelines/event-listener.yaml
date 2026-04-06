@@ -16,6 +16,11 @@ spec:
                 secretKey: secretToken
             - name: "eventTypes"
               value: ["push"]
+        - ref:
+            name: "cel"
+          params:
+            - name: "filter"
+              value: "body.pusher.name != 'rh-imesquit'"
       bindings:
         - ref: quarkus-github-binding
       template:
