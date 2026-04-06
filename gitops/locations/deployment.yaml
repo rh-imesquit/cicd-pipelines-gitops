@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-locations
+  labels:
+    app: app-locations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-locations
+  template:
+    metadata:
+      labels:
+        app: app-locations
+    spec:
+      containers:
+        - name: quarkus-app
+          image: quay-enterprise-quay-quay-enterprise.apps.cluster-cxwlc.cxwlc.sandbox1942.opentlc.com/imesquit/locations:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+          env:
+            - name: QUARKUS_HTTP_PORT
+              value: "8080"
+            - name: JAVA_MAX_MEM_RATIO
+              value: "70"

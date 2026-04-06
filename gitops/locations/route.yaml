@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: app-locations
+  labels:
+    app: app-locations
+spec:
+  to:
+    kind: Service
+    name: app-locations
+  port:
+    targetPort: http
+  tls:
+    termination: edge
