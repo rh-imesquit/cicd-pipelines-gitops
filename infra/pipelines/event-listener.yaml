@@ -2,6 +2,7 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: quarkus-listener
+  namespace: location-pipeline
 spec:
   serviceAccountName: pipeline-bot
   triggers:
@@ -20,7 +21,7 @@ spec:
             name: "cel"
           params:
             - name: "filter"
-              value: "body.pusher.name != 'rh-imesquit'"
+              value: "!body.head_commit.message.startsWith('[Pipeline CI/CD]')"
       bindings:
         - ref: quarkus-github-binding
       template:
