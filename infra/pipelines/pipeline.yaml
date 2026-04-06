@@ -1,0 +1,157 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: quarkus-app-pipeline
+  namespace: app-pipeline-dev
+spec:
+  params:
+    - name: repo-url
+      type: string
+      description: "URL do repositório da aplicação"
+    - name: revision
+      type: string
+      default: "main"
+      description: "Branch ou Hash do commit"
+    - name: image-name
+      type: string
+      description: "Tag completa da imagem (Quay)"
+    - name: gitops-repo-url
+      type: string
+      description: "URL do repositório GitOps para o Push"
+  workspaces:
+    - name: shared-data
+      description: "Armazenamento para o código e artefatos Maven"
+    - name: git-auth
+      description: "Workspace que receberá a Secret github-creds"
+    - name: docker-config
+      description: "Workspace que receberá a Secret quay-auth-secret"
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: output
+          workspace: shared-data
+      params:
+        - name: URL
+          value: $(params.repo-url)
+        - name: REVISION
+          value: $(params.revision)
+    - name: run-tests
+      runAfter: ["fetch-repository"]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: name
+            value: maven
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: GOALS
+          value: ["test"]
+        - name: SUBDIRECTORY
+          value: "apps/locations"
+    - name: build-app
+      runAfter: ["run-tests"]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: name
+            value: maven
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: source
+          workspace: shared-data
+      params:
+        - name: GOALS
+          value: ["package", "-DskipTests"]
+        - name: SUBDIRECTORY
+          value: "apps/locations"
+    - name: build-and-push-image
+      runAfter: ["build-app"]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: dockerconfig
+          workspace: docker-config
+      params:
+        - name: IMAGE
+          value: $(params.image-name)
+        - name: TLS_VERIFY
+          value: "false"
+        - name: CONTEXT
+          value: "apps/locations"
+        - name: DOCKERFILE
+          value: "apps/locations/src/main/docker/Dockerfile.jvm"
+    - name: update-gitops-repo
+      runAfter: ["build-and-push-image"]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: name
+            value: git-cli
+          - name: namespace
+            value: openshift-pipelines
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: basic-auth
+          workspace: git-auth
+      params:
+        - name: GIT_USER_NAME
+          value: "pipeline-bot"
+        - name: GIT_USER_EMAIL
+          value: "pipeline@redhat.com"
+        - name: USER_HOME
+          value: "/tekton/home"
+        - name: DELETE_EXISTING
+          value: "false"
+        - name: GIT_SCRIPT
+          value: |
+            set -e
+            
+            # 1. Extrair o Token do arquivo que a Task acabou de copiar
+            # O prepare.sh criou o arquivo em /tekton/home/.git-credentials
+            # O formato lá é: https://user:token@github.com
+            TOKEN=$(cat /tekton/home/.git-credentials | grep "github.com" | cut -d':' -f3 | cut -d'@' -f1)
+            USER="rh-imesquit"
+
+            # 2. Clonar usando a URL autenticada explicitamente para evitar o prompt
+            REPO_URL=$(echo "$(params.gitops-repo-url)" | sed 's|https://||')
+            
+            rm -rf gitops-dir
+            git clone "https://${USER}:${TOKEN}@${REPO_URL}" gitops-dir
+            cd gitops-dir
+            
+            # 3. Alterar o manifesto
+            sed -i "s|image:.*|image: $(params.image-name)|g" gitops/locations/deployment.yaml
+            
+            git config user.email "pipeline@redhat.com"
+            git config user.name "pipeline-bot"
+            
+            # 4. Push forçando a URL autenticada (mata o erro de 'No such device')
+            git add .
+            if ! git diff --cached --quiet; then
+              git commit -m "bump: update image to $(params.image-name)"
+              git push "https://${USER}:${TOKEN}@${REPO_URL}" main
+            else
+              echo "Nenhuma mudança para commitar."
+            fi

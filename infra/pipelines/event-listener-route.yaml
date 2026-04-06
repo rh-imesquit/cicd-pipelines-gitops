@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: el-quarkus-route
+spec:
+  to:
+    kind: Service
+    name: el-quarkus-listener
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
