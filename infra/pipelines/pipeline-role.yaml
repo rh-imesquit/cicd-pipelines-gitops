@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: pipeline-role
-  namespace: app-pipeline-dev
+  namespace: location-pipeline
 rules:
   # Permissões para Tekton Pipelines
   - apiGroups: ["tekton.dev"]
@@ -25,11 +25,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: pipeline-role-binding
-  namespace: app-pipeline-dev
+  namespace: location-pipeline
 subjects:
   - kind: ServiceAccount
     name: pipeline-bot
-    namespace: app-pipeline-dev
+    namespace: location-pipeline
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -52,7 +52,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: pipeline-bot
-    namespace: app-pipeline-dev
+    namespace: location-pipeline
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

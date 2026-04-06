@@ -2,7 +2,7 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
   name: quarkus-trigger-template
-  namespace: app-pipeline-dev
+  namespace: location-pipeline
 spec:
   params:
     - name: git-url
@@ -23,7 +23,7 @@ spec:
           - name: revision
             value: $(tt.params.git-revision)
           - name: image-name
-            value: "quay-enterprise-quay-quay-enterprise.apps.cluster-cxwlc.cxwlc.sandbox1942.opentlc.com/imesquit/locations:$(tt.params.git-revision)"
+            value: "quay-quay-image-registry.apps.cluster-vg29h.vg29h.sandbox1619.opentlc.com/imesquit/locations:$(tt.params.git-revision)"
           - name: gitops-repo-url
             value: "https://github.com/rh-imesquit/cicd-pipelines-gitops.git"
         workspaces:

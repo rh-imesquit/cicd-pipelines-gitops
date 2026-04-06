@@ -2,7 +2,7 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
   name: quarkus-github-binding
-  namespace: app-pipeline-dev
+  namespace: location-pipeline
 spec:
   params:
     - name: git-url

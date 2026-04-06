@@ -1,9 +1,8 @@
 apiVersion: quay.redhat.com/v1
 kind: QuayRegistry
 metadata:
-  name: quay-enterprise
-  namespace: quay-enterprise
-spec:
+  name: quay
+  namespace: image-registry
   components:
     - kind: postgres
       managed: true
