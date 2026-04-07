@@ -18,6 +18,7 @@ public class CityResource {
     @GET
     @Path("/states")
     public List<Location> getStates(@QueryParam("user_key") String userKey) {
+        System.out.print("Passei por aqui");
         return repository.findAllStates();
     }
 
